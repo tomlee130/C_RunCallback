@@ -19,16 +19,16 @@ int access_file(const char *filepath) {
     return 0;
 }
 
-char *read_file_block(const char *filepath, run_block_interface callback) {
+void read_file_block(const char *filepath, run_block_interface callback) {
     int status;
     if (0 != access_file(filepath)) {
         callback.open_block_error(OPEN_CALLBACK_NOT_FOUND_ERROR);
-        return NULL;
+        return;
     }
     FILE *file = fopen(filepath, "r");
     if (file == NULL) {
         callback.open_block_error(OPEN_CALLBACK_OPEN_ERROR);
-        return NULL;
+        return;
     }
  
     fseek(file, 0, SEEK_END);
@@ -39,30 +39,36 @@ char *read_file_block(const char *filepath, run_block_interface callback) {
     if (content == NULL) {
         callback.open_block_error(OPEN_CALLBACK_MEMORY_ERROR);
         if ((status = fclose(file)) != 0) {
-            callback.close_block(status);
+            callback.close_block(status, NULL, NULL);
         }
-        return NULL;
+        return;
     }
  
     fread(content, 1, (size_t) size, file);
     content[size] = '\0';
  
-    if (0 != (status = fclose(file))) {
-        callback.close_block(status);
-    }
-    return content;
+    status = fclose(file);
+    callback.close_block(status, content, ^(void){
+        free((void *)content);  // 外部回到给外部，用完再释放内存
+    });
 }
 
-char *read_file(const char *filepath, run_callback_interface *callback) {
+void demalloc_mem_block(const char * content) {
+    free((void *)content);
+}
+
+void read_file(const char *filepath, run_callback_interface *callback) {
     // 创建一个接口实例
     run_block_interface block_interface = {
         .open_block_error = ^(int status) {
             callback->open_callback_error(status);
         },
-        .close_block = ^(int status) {
-            callback->close_callback(status);
+        .close_block = ^(int status, const char *content, demalloc_mem func) {
+            callback->close_callback(status, content, ^(void){
+                func();
+            });
         }
     };
     
-    return read_file_block(filepath, block_interface);
+    read_file_block(filepath, block_interface);
 }

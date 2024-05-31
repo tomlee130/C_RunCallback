@@ -18,13 +18,13 @@ int access_file(const char *filepath);
 /// - Parameters:
 ///   - filepath: 文件路径
 ///   - callback: 闭包回调的结构体指针
-char *read_file(const char *filepath, run_callback_interface *callback);
+void read_file(const char *filepath, run_callback_interface *callback);
 
 /// 读取文件
 /// - Parameters:
 ///   - filepath: 文件路径
 ///   - callback: 闭包回调的结构体指针
-char *read_file_block(const char *filepath, run_block_interface callback);
+void read_file_block(const char *filepath, run_block_interface callback);
 
 
 #endif /* run_read_file_h */
