@@ -1,4 +1,10 @@
-# C_RunCallback
+# env:
+    macOS Apple clang version 15.0.0
+    macOS Xcode 14.2+
+    Linux gcc
+
+# Interface
+## C_RunCallback
 ```C
 // 释放文件文本内存闭包函数
 typedef void (^demalloc_mem)(void);
@@ -16,9 +22,7 @@ typedef struct {
 } run_block_interface;
 ```
 
-
-# C callback base interface
-
+## impl biz
 ```C
 /// 使用接口
 /// - Parameter filepath: 文件路径
@@ -58,7 +62,8 @@ void use_read_file(const char *filepath) {
     read_file_block(filepath, block_interface);
 }
 ```
-# impl biz
+
+# API impl using C callback base interface.
 ```C
 void read_file_block(const char *filepath, run_block_interface callback) {
     int status;
