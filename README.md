@@ -1,7 +1,6 @@
 # env:
     macOS Apple clang version 15.0.0
     macOS Xcode 14.2+
-    Linux gcc
 
 # Interface
 ## C_RunCallback
